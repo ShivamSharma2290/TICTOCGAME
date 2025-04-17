@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TIC Toc: Battle of the Enchanted Glyphs</title>
+  <style>
+    body {
+      font-family: 'Papyrus', fantasy;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px #fff;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    .cell:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px #fff;
+    }
+
+    .glyph-x {
+      color: #ff4d4d;
+      text-shadow: 0 0 10px #ff4d4d;
+    }
+
+    .glyph-o {
+      color: #4da6ff;
+      text-shadow: 0 0 10px #4da6ff;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.5em;
+    }
+
+    #restartBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #restartBtn:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>✨ TIC Toc: Battle of the Enchanted Glyphs ✨</h1>
+  <div class="board" id="board"></div>
+  <div id="message"></div>
+  <button id="restartBtn">🔄 Restart Battle</button>
+
+  <script>
+    const board = document.getElementById("board");
+    const message = document.getElementById("message");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const glyphs = {
+      X: "ᚷ", // Rune-style glyph
+      O: "ᛞ"
+    };
+
+    let currentPlayer = "X";
+    let gameActive = true;
+    let gameState = ["", "", "", "", "", "", "", "", ""];
+
+    const winConditions = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    function handleCellClick(e) {
+      const cell = e.target;
+      const index = Array.from(board.children).indexOf(cell);
+
+      if (gameState[index] || !gameActive) return;
+
+      gameState[index] = currentPlayer;
+      cell.textContent = glyphs[currentPlayer];
+      cell.classList.add(currentPlayer === "X" ? "glyph-x" : "glyph-o");
+
+      if (checkWinner()) {
+        message.textContent = `🏆 ${glyphs[currentPlayer]} conquers the board!`;
+        gameActive = false;
+        return;
+      }
+
+      if (!gameState.includes("")) {
+        message.textContent = "⚔️ It's a draw! No glyph prevailed.";
+        gameActive = false;
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      message.textContent = `🔮 ${glyphs[currentPlayer]}'s turn...`;
+    }
+
+    function checkWinner() {
+      return winConditions.some(condition => {
+        const [a, b, c] = condition;
+        return (
+          gameState[a] &&
+          gameState[a] === gameState[b] &&
+          gameState[a] === gameState[c]
+        );
+      });
+    }
+
+    function resetGame() {
+      gameState = ["", "", "", "", "", "", "", "", ""];
+      gameActive = true;
+      currentPlayer = "X";
+      board.innerHTML = "";
+      message.textContent = `🔮 ${glyphs[currentPlayer]}'s turn...`;
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.addEventListener("click", handleCellClick);
+        board.appendChild(cell);
+      }
+    }
+
+    restartBtn.addEventListener("click", resetGame);
+
+    resetGame(); // initialize
+  </script>
+
+</body>
+</html>
